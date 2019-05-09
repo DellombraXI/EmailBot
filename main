@@ -1,0 +1,29 @@
+import date 
+import gspread
+
+def SheetConnect():
+
+    from oauth2client.service_account import ServiceAccountCredentials
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open("Copy of Candidate Tracker").sheet1
+
+    # Extract and print all of the values
+    cand_info = sheet.get_all_records()
+    print(*cand_info, sep='\n')
+
+class SheetCheck():
+    
+    def DateChecker
+        date = sheet.row(1)
+
+class Email():
+    
+    def SendEmail(self):
+
+    def EmailLogic(self):
+        
+        if end_date.week <= 2:
+            email(april)
