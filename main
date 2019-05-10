@@ -1,29 +1,59 @@
-import date 
+import datetime
 import gspread
 
 def SheetConnect():
 
     from oauth2client.service_account import ServiceAccountCredentials
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.a = #fix this
+ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
     client = gspread.authorize(creds)
 
     sheet = client.open("Copy of Candidate Tracker").sheet1
 
     # Extract and print all of the values
     cand_info = sheet.get_all_records()
-    print(*cand_info, sep='\n')
-
-class SheetCheck():
+    print(*cand_info, #fix
+        
+class Employee():
     
-    def DateChecker
-        date = sheet.row(1)
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+    
 
+class Candidate():
+        
+    def __init__(self, name, l_name, end_week):
+        self.name = name
+        self.l_name = l_name
+        self.end_day = end_day
+        self.__generate()
+    
+    def __generate():
+        
+        for i, end_date in enumerate(sheet.col(1))
+        self.name = sheet(i,3)
+        self.l_name = sheet(i,4)
+    end_day = datetime.date(end_date).strftime(%j)
+    self.end_day = end_day
+          
 class Email():
     
+    def __init__(self, employee = list()):
+        self.employee 
+    
+    
     def SendEmail(self):
-
-    def EmailLogic(self):
         
-        if end_date.week <= 2:
-            email(april)
+            
+    def Ackowledge(self):
+        #check for response
+        confirm = False
+
+
+    
+    
+    
+    
+
+            
