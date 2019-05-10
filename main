@@ -1,5 +1,13 @@
-import date 
+import datetime
 import gspread
+import smtplib
+import config
+import ssl
+import time
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+global today
+today = int(datetime.datetime.now().strftime('%j'))
 
 def SheetConnect():
 
@@ -7,23 +15,106 @@ def SheetConnect():
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
     client = gspread.authorize(creds)
-
-    sheet = client.open("Copy of Candidate Tracker").sheet1
-
-    # Extract and print all of the values
-    cand_info = sheet.get_all_records()
-    print(*cand_info, sep='\n')
-
-class SheetCheck():
     
-    def DateChecker
-        date = sheet.row(1)
+    global sheet
+    global backup_sheet
+    sheet = client.open("Copy of Candidate Tracker").sheet1
+    #backup_sheet = client.open("Candidate Tracker Database").sheet1
+    
+class Employee():
 
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        
+    def __str__(self):
+        return(self.name)
+    
+    def email(self):
+        return (self.email)
+        
 class Email():
     
-    def SendEmail(self):
-
-    def EmailLogic(self):
+    def __init__(self, email, message):
+        self.email = email
+        self.messages = message
+            
+    def Ackowledge(self):
+        #check for response
+        None
+    
+class Main():
+    
+    employee_dict = {
+    'AA': 'April',
+    'GO': 'Gaby'
+    }
+    
+    def __init__(self):
+        self.candidates = []
+        self.employees = []
+        self.__gen_employees()
+    
+    def __gen_employees(self):
+        self.employees.append(Employee('April', 'april.anolin@kellyservices.com'))
+        self.employees.append(Employee('Gaby', 'gabriela.ong@kellyservices.com'))
         
-        if end_date.week <= 2:
-            email(april)
+    def SendEmail(self, employee, email, name, l_name, end_date):
+        
+        password = 'Dylandylan2'
+        sent_from = 'kellyservices.bot@gmail.com'
+        to = [email]  
+        subject = ('{}, {} finishing assignment in {} days'.format(l_name, name, end_date)) 
+        body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days'.format(employee, l_name, name, end_date))
+
+        msg = MIMEMultipart()
+        msg['To'] =', '.join(to)
+        msg['From'] = sent_from
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sent_from, password)
+            server.sendmail(sent_from, to, msg.as_string())
+    
+    def Run(self):
+        #gotta do for num of sheets in doc
+        for i in range(len(sheet.col_values(1))):
+            if i == 0:
+                continue
+            print(i)
+            extract_row = sheet.row_values(i+1)
+            end_date = extract_row[0]
+            end_date = end_date.split('/')
+            end_date = [int(i) for i in end_date]
+            end_date.insert(0,end_date[-1])
+            end_date.pop(-1)       
+            end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
+            if today - end_day == 7 or today - end_day == 2:
+                print('Assignment end detected')
+                end = today - end_day
+                name = self.employee_dict[extract_row[1]]
+                for employee in self.employees:
+                    if name == employee:
+                        self.SendEmail(name, employee.email(), extract_row[3], extract_row[4], end)
+                        print('Email sent')
+    
+            
+SheetConnect()           
+bot1 = Main()
+print(sheet.row_values(4))
+print(len(sheet.col_values(1)))
+bot1.Run()
+exit()
+
+
+    
+    
+    
+    
+
+            
+
+
+
