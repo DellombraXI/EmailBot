@@ -21,6 +21,17 @@ def SheetConnect():
     sheet = client.open("Copy of Candidate Tracker").sheet1
     #backup_sheet = client.open("Candidate Tracker Database").sheet1
     
+class Candidate():
+    
+    def __init__(self, handler, name, l_name, end):
+        self.handler = handler
+        self.name = name
+        self.l_name = l_name
+        self.end = end
+    
+    def __str__(self):
+        return str(self.handler)
+    
 class Employee():
 
     def __init__(self, name, email):
@@ -54,6 +65,7 @@ class Main():
         self.candidates = []
         self.employees = []
         self.__gen_employees()
+        self.email_list = []
     
     def __gen_employees(self):
         self.employees.append(Employee('April', 'april.anolin@kellyservices.com'))
@@ -66,26 +78,7 @@ class Main():
         to = ['dylan.doyle11@gmail.com']  
         subject = ('ERROR') 
         body = ('ERROR')
-
-        msg = MIMEMultipart()
-        msg['To'] =', '.join(to)
-        msg['From'] = sent_from
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
-
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(sent_from, password)
-            server.sendmail(sent_from, to, msg.as_string())
-    
-    def SendEmail(self, employee, name, l_name, end_date):
         
-        password = 'Dylandylan2'
-        sent_from = 'kellyservices.bot@gmail.com'
-        to = ['dylan.doyle11@gmail.com']  
-        subject = ('{}, {} finishing assignment in {} days'.format(l_name, name, end_date)) 
-        body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days'.format(employee, l_name, name, end_date))
-
         msg = MIMEMultipart()
         msg['To'] =', '.join(to)
         msg['From'] = sent_from
@@ -96,47 +89,76 @@ class Main():
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(sent_from, password)
             server.sendmail(sent_from, to, msg.as_string())
+
+    def SendEmail(self):
+        
+        for candidate in self.email_list:
+            
+            password = 'Dylandylan2'
+            sent_from = 'kellyservices.bot@gmail.com'
+            to = ['dylan.doyle11@gmail.com']  
+            subject = ('{}, {} finishing assignment in {} days'.format(candidate.l_name, candidate.name, candidate.end)) 
+            body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days'.format(candidate.handler, candidate.l_name, candidate.name, candidate.end))
+            msg = MIMEMultipart()
+            msg['To'] =', '.join(to)
+            msg['From'] = sent_from
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'plain'))
+
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                server.login(sent_from, password)
+                server.sendmail(sent_from, to, msg.as_string())
     
     def Run(self):
-        #gotta do for num of sheets in doc
-        for i in range(len(sheet.col_values(1))):
-            if i == 0:
-                continue
-            if  i % 5 == 0:
-                print(i)
-            extract_row = sheet.row_values(i+1)
-            end_date = extract_row[0]
-            end_date = end_date.split('/')
-            end_date = [int(i) for i in end_date]
-            end_date.insert(0,end_date[-1])
-            end_date.pop(-1)       
-            end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
-            #simulate end day
-            if i == 11:
-                end_day = today + 2
-            if end_day - today == 7 or end_day - today == 2:
-                print('Assignment end detected')
-                end = end_day - today
-                name = self.employee_dict[extract_row[1]]
-                print(name)
-                for employee in self.employees:
-                    if name == employee.name:
-                        try:
-                            self.SendEmail(name, extract_row[3], extract_row[2], end)
-                            print('Email sent')
-                        except:
-                            print('Email not sent')
+        complete = False
+        while complete is False:
+            print('Scraping data...')
+            try:
+                for i in range(len(sheet.col_values(1))):
+                    if i == 0:
+                        continue
+                    if i % 10 == 0:
+                        print('...')
+                    extract_row = sheet.row_values(i+1)
+                    end_date = extract_row[0]
+                    end_date = end_date.split('/')
+                    end_date = [int(i) for i in end_date]
+                    end_date.insert(0,end_date[-1])
+                    end_date.pop(-1)       
+                    end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
+                    
+                    #Simulate end condition for testing
+                    if i == 11:
+                        end_day = today + 2
+                        
+                    if end_day - today == 7 or end_day - today == 2:
+                        print('Assignment end detected')
+                        end = end_day - today
+                        handler = self.employee_dict[extract_row[1]]
+                        for employee in self.employees:
+                            if handler == employee.name and handler not in self.email_list:
+                                self.email_list.append(Candidate(handler, extract_row[3], extract_row[2], end))
+                                print("Candidate added!")
+                complete = True
+            except:
+                print('Failed. Retrying in 10 seconds')
+                time.sleep(10)
+                pass
+                            
+        print('Scraping Complete!')
+        print('Sending out emails')
+        
+        try:
+            self.SendEmail()
+            print('Email sent!')
+        except:
+            print('Failed to send email! End of program.')
             
 bot1 = Main()
-    
-try:
-    SheetConnect()       
-    print(sheet.row_values(4))
-    print(len(sheet.col_values(1)))
-    bot1.Run()
-except:
-    bot1.SendError()
-    print('ERROR')
+SheetConnect()       
+bot1.Run()
+
 
 
     
@@ -145,6 +167,7 @@ except:
     
 
             
+
 
 
 
