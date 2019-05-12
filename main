@@ -30,8 +30,8 @@ class Employee():
     def __str__(self):
         return(self.name)
     
-    def email(self):
-        return (self.email)
+    def __eq__(self):
+        return self.name == other.name or self.email == other.email
         
 class Email():
     
@@ -58,12 +58,31 @@ class Main():
     def __gen_employees(self):
         self.employees.append(Employee('April', 'april.anolin@kellyservices.com'))
         self.employees.append(Employee('Gaby', 'gabriela.ong@kellyservices.com'))
-        
-    def SendEmail(self, employee, email, name, l_name, end_date):
+    
+    def SendError(self):
         
         password = 'Dylandylan2'
         sent_from = 'kellyservices.bot@gmail.com'
-        to = [email]  
+        to = ['dylan.doyle11@gmail.com']  
+        subject = ('ERROR') 
+        body = ('ERROR')
+
+        msg = MIMEMultipart()
+        msg['To'] =', '.join(to)
+        msg['From'] = sent_from
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sent_from, password)
+            server.sendmail(sent_from, to, msg.as_string())
+    
+    def SendEmail(self, employee, name, l_name, end_date):
+        
+        password = 'Dylandylan2'
+        sent_from = 'kellyservices.bot@gmail.com'
+        to = ['dylan.doyle11@gmail.com']  
         subject = ('{}, {} finishing assignment in {} days'.format(l_name, name, end_date)) 
         body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days'.format(employee, l_name, name, end_date))
 
@@ -83,7 +102,8 @@ class Main():
         for i in range(len(sheet.col_values(1))):
             if i == 0:
                 continue
-            print(i)
+            if  i % 5 == 0:
+                print(i)
             extract_row = sheet.row_values(i+1)
             end_date = extract_row[0]
             end_date = end_date.split('/')
@@ -91,22 +111,32 @@ class Main():
             end_date.insert(0,end_date[-1])
             end_date.pop(-1)       
             end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
-            if today - end_day == 7 or today - end_day == 2:
+            #simulate end day
+            if i == 11:
+                end_day = today + 2
+            if end_day - today == 7 or end_day - today == 2:
                 print('Assignment end detected')
-                end = today - end_day
+                end = end_day - today
                 name = self.employee_dict[extract_row[1]]
+                print(name)
                 for employee in self.employees:
-                    if name == employee:
-                        self.SendEmail(name, employee.email(), extract_row[3], extract_row[4], end)
-                        print('Email sent')
-    
+                    if name == employee.name:
+                        try:
+                            self.SendEmail(name, extract_row[3], extract_row[2], end)
+                            print('Email sent')
+                        except:
+                            print('Email not sent')
             
-SheetConnect()           
 bot1 = Main()
-print(sheet.row_values(4))
-print(len(sheet.col_values(1)))
-bot1.Run()
-exit()
+    
+try:
+    SheetConnect()       
+    print(sheet.row_values(4))
+    print(len(sheet.col_values(1)))
+    bot1.Run()
+except:
+    bot1.SendError()
+    print('ERROR')
 
 
     
@@ -115,6 +145,7 @@ exit()
     
 
             
+
 
 
 
