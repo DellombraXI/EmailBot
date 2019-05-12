@@ -17,9 +17,7 @@ def SheetConnect():
     client = gspread.authorize(creds)
     
     global sheet
-    global backup_sheet
     sheet = client.open("Copy of Candidate Tracker").sheet1
-    #backup_sheet = client.open("Candidate Tracker Database").sheet1
     
 class Candidate():
     
@@ -153,7 +151,7 @@ class Main():
             self.SendEmail()
             print('Email(s) sent! End of program.')
         except:
-            print('Failed to send email! End of program.')
+            print('Failed to send email(s)! End of program.')
             
 bot1 = Main()
 SheetConnect()       
