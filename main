@@ -112,12 +112,12 @@ class Main():
     
     def Run(self):
         complete = False
+        place_holder = 1
         while complete is False:
             print('Scraping data...')
             try:
-                for i in range(len(sheet.col_values(1))):
-                    if i == 0:
-                        continue
+                for i in range(place_holder, len(sheet.col_values(1))):
+                    place_holder =+ 1
                     if i % 10 == 0:
                         print('...')
                     extract_row = sheet.row_values(i+1)
@@ -151,13 +151,14 @@ class Main():
         
         try:
             self.SendEmail()
-            print('Email sent!')
+            print('Email(s) sent! End of program.')
         except:
             print('Failed to send email! End of program.')
             
 bot1 = Main()
 SheetConnect()       
 bot1.Run()
+exit()
 
 
 
