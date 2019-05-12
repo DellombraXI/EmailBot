@@ -6,7 +6,7 @@ import ssl
 import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-global today
+#global today
 today = int(datetime.datetime.now().strftime('%j'))
 
 def SheetConnect():
