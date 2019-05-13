@@ -71,7 +71,7 @@ class Main():
     
     def SendError(self):
         
-        password = 'Dylandylan2'
+        password = ''
         sent_from = 'kellyservices.bot@gmail.com'
         to = ['dylan.doyle11@gmail.com']  
         subject = ('ERROR') 
@@ -92,7 +92,7 @@ class Main():
         
         for candidate in self.email_list:
             
-            password = 'Dylandylan2'
+            password = ''
             sent_from = 'kellyservices.bot@gmail.com'
             to = ['dylan.doyle11@gmail.com']  
             subject = ('{}, {} finishing assignment in {} days'.format(candidate.l_name, candidate.name, candidate.end)) 
