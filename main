@@ -6,25 +6,34 @@ import ssl
 import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-#global today
+
 today = int(datetime.datetime.now().strftime('%j'))
+year = int(datetime.datetime.now().year)
+test_email = 'dylan.doyle11@gmail.com'
 
 def SheetConnect():
-
-    from oauth2client.service_account import ServiceAccountCredentials
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
-    client = gspread.authorize(creds)
-    
-    global sheet
-    sheet = client.open("Copy of Candidate Tracker").sheet1
+    try:
+        from oauth2client.service_account import ServiceAccountCredentials
+        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+        creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
+        client = gspread.authorize(creds)
+        
+        global sheet
+        global backup_sheet
+        sheet = client.open("Candidate Tracker").sheet1
+        #backup_sheet = client.open("Candidate Tracker Database").sheet1
+    except:
+            print('Failed to connect. Retrying in 10 seconds')
+            time.sleep(10)
+            pass
     
 class Candidate():
     
-    def __init__(self, handler, name, l_name, end):
+    def __init__(self, handler, handler_email, name, l_name, end):
         self.handler = handler
         self.name = name
         self.l_name = l_name
+        self.handler_email = handler_email
         self.end = end
     
     def __str__(self):
@@ -37,20 +46,10 @@ class Employee():
         self.email = email
         
     def __str__(self):
-        return(self.name)
+        return(self.name) or (self.email)
     
     def __eq__(self):
         return self.name == other.name or self.email == other.email
-        
-class Email():
-    
-    def __init__(self, email, message):
-        self.email = email
-        self.messages = message
-            
-    def Ackowledge(self):
-        #check for response
-        None
     
 class Main():
     
@@ -69,13 +68,13 @@ class Main():
         self.employees.append(Employee('April', 'april.anolin@kellyservices.com'))
         self.employees.append(Employee('Gaby', 'gabriela.ong@kellyservices.com'))
     
-    def SendError(self):
+    def NotifyMaster(self):
         
-        password = ''
+        password = 'Dylandylan2'
         sent_from = 'kellyservices.bot@gmail.com'
-        to = ['dylan.doyle11@gmail.com']  
-        subject = ('ERROR') 
-        body = ('ERROR')
+        to = [test_email]  
+        subject = ('RUN') 
+        body = ('RUN')
         
         msg = MIMEMultipart()
         msg['To'] =', '.join(to)
@@ -92,11 +91,11 @@ class Main():
         
         for candidate in self.email_list:
             
-            password = ''
+            password = 'Dylandylan2'
             sent_from = 'kellyservices.bot@gmail.com'
-            to = ['dylan.doyle11@gmail.com']  
-            subject = ('{}, {} finishing assignment in {} days'.format(candidate.l_name, candidate.name, candidate.end)) 
-            body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days'.format(candidate.handler, candidate.l_name, candidate.name, candidate.end))
+            to = [candidate.handler_email]  
+            subject = ('Assignment Completion - {}, {}'.format(candidate.l_name, candidate.name)) 
+            body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days.'.format(candidate.handler, candidate.l_name, candidate.name, candidate.end))
             msg = MIMEMultipart()
             msg['To'] =', '.join(to)
             msg['From'] = sent_from
@@ -115,47 +114,62 @@ class Main():
             print('Scraping data...')
             try:
                 for i in range(place_holder, len(sheet.col_values(1))):
-                    place_holder =+ 1
+                    place_holder += 1
                     if i % 10 == 0:
                         print('...')
                     extract_row = sheet.row_values(i+1)
-                    end_date = extract_row[0]
-                    end_date = end_date.split('/')
-                    end_date = [int(i) for i in end_date]
-                    end_date.insert(0,end_date[-1])
-                    end_date.pop(-1)       
-                    end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
+                    try:
+                        end_date = extract_row[0]
+                        end_date = end_date.split('/')
+                        end_date = [int(i) for i in end_date]
+                        end_date.insert(0,end_date[-1])
+                        end_date.pop(-1)       
+                        end_day = int(datetime.datetime(end_date[0], end_date[1], end_date[2]).strftime('%j'))
+                    except:
+                        pass
                     
                     #Simulate end condition for testing
-                    if i == 11:
-                        end_day = today + 2
+                    #if i == 50:
+                        #end_day = today + 2
+                    #if i == 1:
+                        #end_day = today + 3
                         
-                    if end_day - today == 7 or end_day - today == 2:
+                    if end_day - today == 2 and end_date[0] == year:
                         print('Assignment end detected')
                         end = end_day - today
                         handler = self.employee_dict[extract_row[1]]
+                        #If candidate split between two people i.e 'AA/GO' then take first employee
+                        if len(handler) > 2:
+                            handler_split = handler.split('/')
+                            handler = handler_split[0]
+                            
                         for employee in self.employees:
-                            if handler == employee.name and handler not in self.email_list:
-                                self.email_list.append(Candidate(handler, extract_row[3], extract_row[2], end))
+                            if handler == employee.name:
+                                self.email_list.append(Candidate(handler, employee.email, extract_row[3], extract_row[2], end))
                                 print("Candidate added!")
                 complete = True
             except:
-                print('Failed. Retrying in 10 seconds')
+                print('Scraping interupted. Retrying in 10 seconds')
                 time.sleep(10)
                 pass
+                
                             
         print('Scraping Complete!')
-        print('Sending out emails')
         
-        try:
-            self.SendEmail()
-            print('Email(s) sent! End of program.')
-        except:
-            print('Failed to send email(s)! End of program.')
+        if len(self.email_list) > 0:
+            try:
+                print('Sending out emails')
+                self.SendEmail()
+                print('Email(s) sent! End of program.')
+            except:
+                print('Failed to send email! End of program.')
+        else:
+            print('No approaching assignment completion. End of program.')
             
 bot1 = Main()
 SheetConnect()       
 bot1.Run()
+bot1.NotifyMaster()
 exit()
 
 
@@ -166,6 +180,9 @@ exit()
     
 
             
+
+
+
 
 
 
