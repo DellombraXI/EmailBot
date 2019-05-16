@@ -18,12 +18,13 @@ test_email = 'dylan.doyle11@gmail.com'
 
 
 def sheetconnect():
+    #Connecting to the Google API and the spreadsheet being used using credentials from JSON file
     try:
         from oauth2client.service_account import ServiceAccountCredentials
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/Python/Bot/bot_cred.json', scope)
         client = gspread.authorize(creds)
-
+        #Creating global variable 'sheet' and giving it all the information from sheet 1 of the spreadsheet
         global sheet
         sheet = client.open("Candidate Tracker").sheet1
         # backup_sheet = client.open("Candidate Tracker Database").sheet1
@@ -33,6 +34,7 @@ def sheetconnect():
         pass
     
 class Main:
+    #Spreadsheet uses employee initials for ease. Allows for conversion to list employee first names.
     employee_dict = {
         'AA': 'April',
         'GO': 'Gaby'
@@ -45,11 +47,12 @@ class Main:
         self.email_list = []
 
     def __gen_employees(self):
+        #Creating employees with given information
         self.employees.append(Employee('April', 'april.anolin@kellyservices.com'))
         self.employees.append(Employee('Gaby', 'gabriela.ong@kellyservices.com'))
 
     def notifymaster(self):
-
+    #The following method sends creator an email to test functionality
         password = 'Dylandylan2'
         sent_from = 'kellyservices.bot@gmail.com'
         to = [test_email]
@@ -68,7 +71,9 @@ class Main:
             server.sendmail(sent_from, to, msg.as_string())
 
     def sendemail(self):
-
+    #After creating a list of candidates, method gets those candidates and creates an email
+    #with respective information and employee handler.
+    
         for candidate in self.email_list:
             password = 'Dylandylan2'
             sent_from = 'kellyservices.bot@gmail.com'
@@ -76,18 +81,23 @@ class Main:
             subject = ('Assignment Completion - {}, {}'.format(candidate.l_name, candidate.name))
             body = ('Hi {}! Your candidate {}, {} will reach the end of their assignment in {} days.'.format(
                 candidate.handler, candidate.l_name, candidate.name, candidate.end))
+           #Using python library to create email
             msg = MIMEMultipart()
             msg['To'] = ', '.join(to)
             msg['From'] = sent_from
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))
-
+            #Log into email and send using above information
             context = ssl.create_default_context()
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
                 server.login(sent_from, password)
                 server.sendmail(sent_from, to, msg.as_string())
 
     def run(self):
+        #Due to the query limits on Google API, the process can sometimes fail. Scraping process
+        #is stopped then continued after 10 seconds whenever there is a break in service. Finishes
+        #when 'complete' is True.
+        
         complete = False
         place_holder = 1
         while complete is False:
@@ -99,6 +109,8 @@ class Main:
                         print('...')
                     extract_row = sheet.row_values(i + 1)
                     try:
+                        #Rearranging the string from spreadsheet to be used in datetime method. If entry is 
+                        #contains no integers or is not formatted properly, skip. 
                         end_date = extract_row[0]
                         end_date = end_date.split('/')
                         end_date = [int(i) for i in end_date]
@@ -113,7 +125,8 @@ class Main:
                     # end_day = today + 2
                     # if i == 1:
                     # end_day = today + 3
-
+                    
+                    #Sending end condition that 2 days is the threshold to send email notice
                     if end_day - today == 2 and end_date[0] == year:
                         print('Assignment end detected')
                         end = end_day - today
@@ -122,7 +135,7 @@ class Main:
                         if len(handler) > 2:
                             handler_split = handler.split('/')
                             handler = handler_split[0]
-
+                        #Checking candidate info for handler and setting email of respective employee
                         for employee in self.employees:
                             if handler == employee.name:
                                 self.email_list.append(
@@ -135,7 +148,8 @@ class Main:
                 pass
 
         print('Scraping Complete!')
-
+        
+        #If a candidate has been added to the list, then send out email.
         if len(self.email_list) > 0:
             try:
                 print('Sending out emails')
@@ -146,7 +160,7 @@ class Main:
         else:
             print('No approaching assignment completion. End of program.')
 
-    
+#Initialize bot, connect sheet, then run the bot.
 bot1 = Main()
 sheetconnect()
 bot1.run()
