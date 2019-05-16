@@ -1,6 +1,9 @@
 # EmailBot requires specific python libraries including gspread and oauth2client to operate, as well as operation credentials stored via JSON file.
 
-EmailBot is a program written for Kelly Services Inc., a recruiting firm, to automate the process of managing candidates. Employees addressed an issue about often being unaware of the approaching assignment completion dates of their candidates. To combat this issue, this program was written to keep track of candidate dates and alert the respective employee if the assignment completion is within 2 days. 
+EmailBot is a program written for Kelly Services Inc., a recruiting firm, to automate the process of managing candidates. 
+Employees addressed an issue about often being unaware of the approaching assignment completion dates of their candidates. 
+To combat this issue, this program was written to keep track of candidate dates and alert the respective employee if the 
+assignment completion is within 2 days. 
 
 The work flow consists of the following:
 
