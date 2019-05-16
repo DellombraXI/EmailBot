@@ -6,13 +6,13 @@ The work flow consists of the following:
 
 1) Extract data using the Google API and Google Spreadsheets
 2) Scan for completion dates and compare with regards to current date 
-  2b) If candidate is approaching their assignment completion, add candidate to a list on local memory
-3) Continue scraping spreadsheet until completion
-4) Open the previous created list, extract candidate information and send an email to the respective employee.
-5) Program is scheduled to run every weekday at 2 PM as asked by employer
+3) If candidate is approaching their assignment completion, add candidate to a list on local memory
+4) Continue scraping spreadsheet until completion
+5) Open the previous created list, extract candidate information and send an email to the respective employee.
+6) Program is scheduled to run every weekday at 2 PM as asked by employer
 
 An example email looks like this: 
-To: [Whichever employee is in charge of candidate as listed on spreadsheet]
-From: kellyservices.bot@gmail.com
-Subject: 'Assignment Completion - Doyle, Dylan'
-Body: 'Hi Gabriela, your candidate Doyle, Dylan will be reaching the end of their assignment in 2 days.'
+- To: [Whichever employee is in charge of candidate as listed on spreadsheet]
+- From: kellyservices.bot@gmail.com
+- Subject: 'Assignment Completion - Doyle, Dylan'
+- Body: 'Hi Gabriela, your candidate Doyle, Dylan will be reaching the end of their assignment in 2 days.'
