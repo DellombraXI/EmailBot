@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import datetime
 import gspread
 import smtplib
@@ -15,7 +16,7 @@ def sheetconnect():
     try:
         from oauth2client.service_account import ServiceAccountCredentials
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        creds = ServiceAccountCredentials.from_json_keyfile_name('bot_cred.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/Python/Bot/bot_cred.json', scope)
         client = gspread.authorize(creds)
 
         global sheet
@@ -173,20 +174,3 @@ sheetconnect()
 bot1.run()
 bot1.notifymaster()
 exit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
