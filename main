@@ -11,14 +11,18 @@ import smtplib
 import ssl
 import time
 
-
+#Establishing global variables to be used in data analyses
 today = int(datetime.datetime.now().strftime('%j'))
 year = int(datetime.datetime.now().year)
 test_email = 'dylan.doyle11@gmail.com'
+pw = input('Please enter login password: ')
 
 
 def sheetconnect():
-    #Connecting to the Google API using credentials from JSON file and retreiving spreadsheet
+    """ Connecting to the Google API using credentials from JSON file and retreiving spreadsheet. Failure returns "Failed to 
+    connect" and attempts to reconnect after 10 seconds. 
+    """
+    
     try:
         from oauth2client.service_account import ServiceAccountCredentials
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -34,14 +38,35 @@ def sheetconnect():
         pass
     
 class Main:
-    #Spreadsheet uses employee initials for ease. Allows for conversion to list employee first names.
+    """ Represents actual game function and attributes
+    
+    Attributes:
+    
+    employee_dict: dict
+        Spreadsheet uses employee initials for ease. Allows for conversion to list employee first names.       
+    employees: list
+        List of involved employees drawing from Employee class
+    email_list: list
+        List of candidates reaching completion of assignment, drawing from Candidate class
+    
+    Methods:
+    
+    __gen_employees(self)
+        Internally generates list of employees
+    notifymaster(self)
+        Method to notify program runner to ensure program excecutes at schedules time (if necessary)
+    sendemail(self)
+        Method to send emails to employees with regards to list of candidates in email_list with all necessary info
+    run(self)
+        Method to run information scraping and establish list of candidates approaching assignment end date
+     """
+        
     employee_dict = {
         'AA': 'April',
         'GO': 'Gaby'
     }
 
     def __init__(self):
-        self.candidates = []
         self.employees = []
         self.__gen_employees()
         self.email_list = []
@@ -52,8 +77,11 @@ class Main:
         self.employees.append(Employee('Gaby', 'gabriela.ong@kellyservices.com'))
 
     def notifymaster(self):
-    #The following method sends creator an email to test functionality
-        password = 'Dylandylan2'
+    """ Using specified login information, an email object is created and attached to email, which is then
+    sent simply indicating 'RUN' to the host.
+    """
+    
+        password = pw
         sent_from = 'kellyservices.bot@gmail.com'
         to = [test_email]
         subject = 'RUN'
@@ -71,11 +99,12 @@ class Main:
             server.sendmail(sent_from, to, msg.as_string())
 
     def sendemail(self):
-    #After creating a list of candidates, method gets those candidates and creates an email
-    #with respective information and employee handler.
+    """ With the specfied login information, the method cycles through the list of candidates approaching 
+    assignment completion and formulates an email given the respective employee and candidate information.
+    """
     
         for candidate in self.email_list:
-            password = 'Dylandylan2'
+            password = pw
             sent_from = 'kellyservices.bot@gmail.com'
             to = [candidate.handler_email]
             subject = ('Assignment Completion - {}, {}'.format(candidate.l_name, candidate.name))
@@ -94,9 +123,11 @@ class Main:
                 server.sendmail(sent_from, to, msg.as_string())
 
     def run(self):
-        #Due to the query limits on Google API, the process can sometimes fail. Scraping process
-        #is stopped then continued after 10 seconds whenever there is a break in service. Finishes
-        #when 'complete' is True.
+        """ Method executes the data scraper. Due to the query limits on Google API, the process can sometimes fail. 
+        Scraping process is stopped then continued after 10 seconds whenever there is a break in service. Finishes
+        when 'complete' is True. If scraping is interupted, scraping resumes at the location of place_holder to avoid 
+        processing candidates more than once.
+        """
         
         complete = False
         place_holder = 1
@@ -109,7 +140,7 @@ class Main:
                         print('...')
                     extract_row = sheet.row_values(i + 1)
                     try:
-                        #Rearranging the string from spreadsheet to be used in datetime method. If entry is 
+                        #Rearranging the string from spreadsheet to be used in datetime method. If entry  
                         #contains no integers or is not formatted properly, skip. 
                         end_date = extract_row[0]
                         end_date = end_date.split('/')
@@ -120,13 +151,13 @@ class Main:
                     except:
                         pass
 
-                    # Simulate end condition for testing
+                    # Simulate end condition for testing if necessary
                     # if i == 50:
                     # end_day = today + 2
                     # if i == 1:
                     # end_day = today + 3
                     
-                    #Sending end condition that 2 days is the threshold to send email notice
+                    #End condition 2 days is the threshold to send email notice
                     if end_day - today == 2 and end_date[0] == year:
                         print('Assignment end detected')
                         end = end_day - today
