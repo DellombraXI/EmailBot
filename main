@@ -18,7 +18,7 @@ test_email = 'dylan.doyle11@gmail.com'
 
 
 def sheetconnect():
-    #Connecting to the Google API and the spreadsheet being used using credentials from JSON file
+    #Connecting to the Google API using credentials from JSON file and retreiving spreadsheet
     try:
         from oauth2client.service_account import ServiceAccountCredentials
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
