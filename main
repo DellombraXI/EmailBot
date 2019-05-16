@@ -43,7 +43,7 @@ class Main:
     Attributes:
     
     employee_dict: dict
-        Spreadsheet uses employee initials for ease. Allows for conversion to list employee first names.       
+        Spreadsheet uses employee initials for ease. Allows for conversion to employee first names.       
     employees: list
         List of involved employees drawing from Employee class
     email_list: list
