@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 from Candidate import Candidate
 from Employee import Employee
+from Game import Game
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 import datetime
 import gspread
 import smtplib
 import ssl
 import time
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
 
 today = int(datetime.datetime.now().strftime('%j'))
 year = int(datetime.datetime.now().year)
@@ -32,5 +35,4 @@ def sheetconnect():
 bot1 = Main()
 sheetconnect()
 bot1.run()
-bot1.notifymaster()
 exit()
