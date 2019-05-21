@@ -78,7 +78,7 @@ class Main:
 
     def notifymaster(self):
     """ Using specified login information, an email object is created and attached to email, which is then
-    sent simply indicating 'RUN' to the host.
+    sent simply indicating 'RUN' to the host. Used for test purposes.
     """
     
         password = pw
@@ -140,7 +140,7 @@ class Main:
                         print('...')
                     extract_row = sheet.row_values(i + 1)
                     try:
-                        #Rearranging the string from spreadsheet to be used in datetime method. If entry  
+                        #Rearranging the completion date string from spreadsheet to be used in datetime method. If entry  
                         #contains no integers or is not formatted properly, skip. 
                         end_date = extract_row[0]
                         end_date = end_date.split('/')
@@ -154,10 +154,8 @@ class Main:
                     # Simulate end condition for testing if necessary
                     # if i == 50:
                     # end_day = today + 2
-                    # if i == 1:
-                    # end_day = today + 3
                     
-                    #End condition 2 days is the threshold to send email notice
+                    #End condition: 2 days is the threshold to send email notice
                     if end_day - today == 2 and end_date[0] == year:
                         print('Assignment end detected')
                         end = end_day - today
@@ -176,7 +174,6 @@ class Main:
             except:
                 print('Scraping interrupted. Retrying in 10 seconds')
                 time.sleep(10)
-                pass
 
         print('Scraping Complete!')
         
